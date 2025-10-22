@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <div class="card-body">
+    <h3>Create Event</h3>
+    <form method="post">
+      <div class="mb-3">
+        <label class="form-label">Event Name</label>
+        <input name="name" class="form-control" required/>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Hashtags (comma-separated, omit #)</label>
+        <input name="hashtags" class="form-control" placeholder="productlaunch,brandX"/>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Keywords (OR-separated)</label>
+        <input name="keywords" class="form-control" placeholder="brand X launch, new product"/>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Start Time (ISO)</label>
+        <input name="start_time" class="form-control" placeholder="2025-10-22T18:00:00" required/>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">End Time (ISO)</label>
+        <input name="end_time" class="form-control" placeholder="2025-10-22T20:00:00" required/>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea name="description" class="form-control"></textarea>
+      </div>
+      <button class="btn btn-primary">Create</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

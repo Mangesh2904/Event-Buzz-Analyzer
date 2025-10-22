@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid mt-4">
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <h1>{{ event.name }}</h1>
+      <p class="text-muted">{{ event.description }}</p>
+    </div>
+    <div class="col-md-4 text-end">
+      <button id="startCollectionBtn" class="btn btn-success me-2">
+        <i class="fas fa-play"></i> Start Analysis
+      </button>
+      <a class="btn btn-outline-secondary me-2" href="{{ url_for('export_csv', event_id=event._id) }}">
+        <i class="fas fa-download"></i> Export CSV
+      </a>
+      <a class="btn btn-outline-secondary" href="{{ url_for('export_pdf', event_id=event._id) }}">
+        <i class="fas fa-file-pdf"></i> Export PDF
+      </a>
+    </div>
+  </div>
+
+  <div id="loading" class="alert alert-info alert-dismissible fade show" style="display:none;">
+    <div class="spinner-border spinner-border-sm me-2" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    Collecting data and analyzing buzz metrics...
+  </div>
+
+  <div class="row">
+    <!-- Main Charts -->
+    <div class="col-lg-8">
+      <!-- Buzz Volume Chart -->
+      <div class="card mb-3 shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0"><i class="fas fa-chart-line"></i> Buzz Volume Over Time</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="volumeChart" height="100"></canvas>
+        </div>
+      </div>
+
+      <!-- Sentiment Analysis Chart -->
+      <div class="card mb-3 shadow-sm">
+        <div class="card-header bg-info text-white">
+          <h5 class="mb-0"><i class="fas fa-heart"></i> Sentiment Analysis Over Time</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="sentimentChart" height="100"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar Metrics -->
+    <div class="col-lg-4">
+      <!-- Buzz Score Card -->
+      <div class="card mb-3 shadow-sm border-success">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0"><i class="fas fa-fire"></i> Current Buzz Score</h5>
+        </div>
+        <div class="card-body">
+          <div class="text-center">
+            <div class="buzz-score-display" id="buzzScore">--</div>
+            <small class="text-muted">Out of 100</small>
+            <p class="mt-2 mb-0" id="buzzInterpretation"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Key Metrics -->
+      <div class="card mb-3 shadow-sm">
+        <div class="card-header bg-warning text-dark">
+          <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Key Metrics</h5>
+        </div>
+        <div class="card-body">
+          <ul class="list-group list-group-flush" id="summaryList">
+            <li class="list-group-item d-flex justify-content-between">
+              <span>Total Mentions</span>
+              <span class="badge bg-primary" id="metric-total">0</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <span>Before Event</span>
+              <span class="badge bg-secondary" id="metric-pre">0</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <span>During Event</span>
+              <span class="badge bg-info" id="metric-during">0</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <span>After Event</span>
+              <span class="badge bg-secondary" id="metric-post">0</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <span><i class="fas fa-smile" style="color:#27ae60;"></i> Positive</span>
+              <span class="badge bg-success" id="metric-pos">0</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <span><i class="fas fa-meh" style="color:#f39c12;"></i> Neutral</span>
+              <span class="badge bg-warning" id="metric-neu">0</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <span><i class="fas fa-frown" style="color:#e74c3c;"></i> Negative</span>
+              <span class="badge bg-danger" id="metric-neg">0</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Sentiment Distribution -->
+      <div class="card mb-3 shadow-sm">
+        <div class="card-header bg-danger text-white">
+          <h5 class="mb-0"><i class="fas fa-tachometer-alt"></i> Sentiment Polarity</h5>
+        </div>
+        <div class="card-body">
+          <div id="polarityStats">
+            <div class="mb-2">
+              <small class="d-block text-muted">Pre-Event Sentiment</small>
+              <div class="progress" style="height: 20px;">
+                <div id="polarity-pre" class="progress-bar" style="width: 50%;">--</div>
+              </div>
+            </div>
+            <div class="mb-2">
+              <small class="d-block text-muted">During-Event Sentiment</small>
+              <div class="progress" style="height: 20px;">
+                <div id="polarity-during" class="progress-bar bg-info" style="width: 50%;">--</div>
+              </div>
+            </div>
+            <div>
+              <small class="d-block text-muted">Post-Event Sentiment</small>
+              <div class="progress" style="height: 20px;">
+                <div id="polarity-post" class="progress-bar bg-success" style="width: 50%;">--</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recommendations -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+          <h5 class="mb-0"><i class="fas fa-lightbulb"></i> AI-Generated Recommendations</h5>
+        </div>
+        <div class="card-body">
+          <div id="recommendations" class="list-group list-group-flush">
+            <p class="text-muted text-center py-4">Load analysis to see recommendations</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const EVENT_ID = "{{ event._id }}";
+
+// Make sure Chart.js is available
+if (typeof Chart === 'undefined') {
+  console.error("Chart.js not loaded!");
+}
+
+// Format polarity for display (convert from -1 to 1 range to -100 to 100 or percentage)
+function formatPolarity(val) {
+  if (val === null || val === undefined) return "N/A";
+  const percentage = Math.round((val + 1) / 2 * 100);
+  return percentage + "%";
+}
+
+// Apply polarity styling to progress bars
+function applyPolarityStyle(polarity) {
+  if (polarity < -0.3) return { class: 'bg-danger', label: 'Very Negative' };
+  if (polarity < -0.1) return { class: 'bg-danger', label: 'Negative' };
+  if (polarity < 0.1) return { class: 'bg-warning', label: 'Neutral' };
+  if (polarity < 0.3) return { class: 'bg-info', label: 'Positive' };
+  return { class: 'bg-success', label: 'Very Positive' };
+}
+</script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

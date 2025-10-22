@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ event.name }}</h2>
+<p>{{ event.description }}</p>
+
+<div class="mb-3">
+  <button id="startCollectionBtn" class="btn btn-success">Start Collection</button>
+  <a class="btn btn-outline-secondary" href="{{ url_for('export_csv', event_id=event._id) }}">Export CSV</a>
+  <a class="btn btn-outline-secondary" href="{{ url_for('export_pdf', event_id=event._id) }}">Export PDF</a>
+</div>
+
+<div id="loading" class="alert alert-info" style="display:none;">Loading metrics...</div>
+
+<div class="row">
+  <div class="col-md-8">
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5>Volume Over Time</h5>
+        <canvas id="volumeChart" height="120"></canvas>
+      </div>
+    </div>
+
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5>Sentiment Over Time</h5>
+        <canvas id="sentimentChart" height="120"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5>Summary</h5>
+        <ul class="list-group" id="summaryList">
+        </ul>
+      </div>
+    </div>
+
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5>Recommendations</h5>
+        <div id="recommendations"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const EVENT_ID = "{{ event._id }}";
+</script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

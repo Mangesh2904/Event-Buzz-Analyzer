@@ -1,0 +1,16 @@
+Flask
+pymongo
+tweepy
+textblob
+dnspython
+python-dotenv
+reportlab
+pandas
+requests
+gunicorn
+praw
+google-api-python-client
+chartjs-plugin-datalabels
+python-dateutil
+newsapi
+lxml

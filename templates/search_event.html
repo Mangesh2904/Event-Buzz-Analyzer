@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow-lg">
+        <div class="card-body p-5">
+          <h1 class="card-title text-center mb-4">Event Buzz Analyzer</h1>
+          <p class="text-center text-muted mb-4">Analyze buzz, sentiment, and trends for any event across Reddit, YouTube, and News</p>
+          
+          <form method="POST" action="{{ url_for('search_event') }}">
+            <div class="mb-4">
+              <label for="event_name" class="form-label fw-bold">Event Name</label>
+              <input 
+                type="text" 
+                class="form-control form-control-lg" 
+                id="event_name" 
+                name="event_name" 
+                placeholder="e.g., Tesla Q3 Results, Oscar Awards 2025" 
+                required
+                autocomplete="off"
+              >
+              <small class="form-text text-muted d-block mt-2">
+                Enter any event name (past, present, or upcoming) to analyze its buzz and sentiment
+              </small>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
+              <i class="fas fa-search"></i> Analyze Event
+            </button>
+          </form>
+
+          <hr class="my-4">
+          
+          <h5 class="mb-3">Recent Events Analyzed</h5>
+          {% if events %}
+            <div class="list-group list-group-flush">
+              {% for event in events[:5] %}
+                <a href="{{ url_for('analyze', event_id=event._id) }}" class="list-group-item list-group-item-action">
+                  <div class="d-flex w-100 justify-content-between align-items-center">
+                    <h6 class="mb-1">{{ event.name }}</h6>
+                    <span class="badge bg-info">{{ event.get('auto_created', False) and 'Auto' or 'Manual' }}</span>
+                  </div>
+                  <small class="text-muted">Created {{ event.created_at.strftime('%Y-%m-%d %H:%M') if event.created_at else 'N/A' }}</small>
+                </a>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="text-muted text-center">No events analyzed yet. Start with an event name above!</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="mt-4 text-center">
+        <h6 class="text-muted mb-3">Data Sources</h6>
+        <div class="d-flex justify-content-center gap-3">
+          <span class="badge bg-secondary">Reddit</span>
+          <span class="badge bg-secondary">YouTube</span>
+          <span class="badge bg-secondary">News APIs</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+  }
+  .card {
+    border: none;
+    border-radius: 10px;
+  }
+  .form-control-lg {
+    border-radius: 8px;
+    border: 2px solid #e0e0e0;
+  }
+  .form-control-lg:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 8px;
+  }
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  }
+</style>
+{% endblock %}
