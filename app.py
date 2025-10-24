@@ -105,8 +105,13 @@ def api_metrics(event_id):
     df['created_at'] = pd.to_datetime(df['created_at'])
     df.set_index('created_at', inplace=True)
 
+    # FIX: Floor the start/end times to hour boundaries to match resample output
+    # This prevents the reindex from dropping all data due to microsecond mismatch
+    pre_start_floor = pd.Timestamp(pre_start).floor('1H')
+    post_end_ceil = pd.Timestamp(post_end).ceil('1H')
+
     counts = df.resample('1H').size().rename("count")
-    counts = counts.reindex(pd.date_range(pre_start, post_end, freq='1H'), fill_value=0)
+    counts = counts.reindex(pd.date_range(pre_start_floor, post_end_ceil, freq='1H'), fill_value=0)
 
     pos = df[df.sentiment=="positive"].resample('1H').size().reindex(counts.index, fill_value=0)
     neg = df[df.sentiment=="negative"].resample('1H').size().reindex(counts.index, fill_value=0)

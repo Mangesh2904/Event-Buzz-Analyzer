@@ -10,7 +10,5 @@ requests
 gunicorn
 praw
 google-api-python-client
-chartjs-plugin-datalabels
 python-dateutil
-newsapi
 lxml
